@@ -15,6 +15,12 @@ type Shape = {
 } | {
     type: "pencil";
     points: { x: number; y: number }[];
+} | {
+    type: "text";
+    x: number;
+    y: number;
+    text: string;
+    fontSize: number;
 }
 
 export class Game {
@@ -31,6 +37,8 @@ export class Game {
     private scale = 1;
     private offsetX = 0;
     private offsetY = 0;
+    private isTyping = false;
+    private textInput: HTMLInputElement | null = null;
 
     socket: WebSocket;
 
@@ -52,10 +60,22 @@ export class Game {
         this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
         this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
         this.canvas.removeEventListener("wheel", this.wheelHandler);
+        this.removeTextInput();
     }
 
-    setTool(tool: "circle" | "pencil" | "rect") {
+    setTool(tool: "circle" | "pencil" | "rect" | "text") {
         this.selectedTool = tool;
+        if (tool !== "text") {
+            this.removeTextInput();
+        }
+    }
+
+    removeTextInput() {
+        if (this.textInput) {
+            this.textInput.remove();
+            this.textInput = null;
+            this.isTyping = false;
+        }
     }
 
     async init() {
@@ -132,13 +152,13 @@ export class Game {
 
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = "rgba(0, 0, 0, 1)";
+        this.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || "#ffffff";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.applyTransform();
 
         this.existingShapes.forEach((shape) => {
-            this.ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+            this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
             this.ctx.lineWidth = 2;
             
             if (shape.type === "rect") {
@@ -155,7 +175,10 @@ export class Game {
                     this.ctx.lineTo(shape.points[i].x, shape.points[i].y);
                 }
                 this.ctx.stroke();
-                this.clearCanvas();
+            } else if (shape.type === "text") {
+                this.ctx.font = `${shape.fontSize}px Arial`;
+                this.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
+                this.ctx.fillText(shape.text, shape.x, shape.y);
             }
         });
 
@@ -163,6 +186,13 @@ export class Game {
     }
 
     mouseDownHandler = (e: MouseEvent) => {
+        if (this.selectedTool === "text") {
+            this.removeTextInput();
+            const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
+            this.createTextInput(coords.x, coords.y);
+            return;
+        }
+        
         this.clicked = true;
         const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
         this.startX = coords.x;
@@ -173,8 +203,75 @@ export class Game {
         }
     };
 
+    createTextInput(x: number, y: number) {
+        this.removeTextInput();
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Enter text...';
+        input.style.position = 'absolute';
+        input.style.left = `${x * this.scale + this.offsetX}px`;
+        input.style.top = `${y * this.scale + this.offsetY}px`;
+        input.style.fontSize = `${20 * this.scale}px`;
+        input.style.border = '2px solid #3b82f6';
+        input.style.borderRadius = '4px';
+        input.style.padding = '4px 8px';
+        input.style.background = 'white';
+        input.style.color = 'black';
+        input.style.zIndex = '1001';
+        input.style.minWidth = '100px';
+        
+        this.textInput = input;
+        this.isTyping = true;
+        document.body.appendChild(input);
+        input.focus();
+        
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && input.value.trim()) {
+                const shape: Shape = {
+                    type: "text",
+                    x,
+                    y,
+                    text: input.value.trim(),
+                    fontSize: 20
+                };
+                
+                this.addShape(shape);
+                this.removeTextInput();
+            } else if (e.key === 'Escape') {
+                this.removeTextInput();
+            }
+        };
+        
+        input.addEventListener('keydown', handleKeyDown);
+        input.addEventListener('blur', () => {
+            if (input.value.trim()) {
+                const shape: Shape = {
+                    type: "text",
+                    x,
+                    y,
+                    text: input.value.trim(),
+                    fontSize: 20
+                };
+                this.addShape(shape);
+            }
+            this.removeTextInput();
+        });
+    }
+
+    addShape(shape: Shape) {
+        this.existingShapes.push(shape);
+        this.clearCanvas();
+        
+        this.socket.send(JSON.stringify({
+            type: "chat",
+            message: JSON.stringify({ shape }),
+            roomId: this.roomId
+        }));
+    }
+
     mouseUpHandler = (e: MouseEvent) => {
-        if (!this.clicked) return;
+        if (!this.clicked || this.selectedTool === "text") return;
         
         this.clicked = false;
         const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
@@ -211,15 +308,7 @@ export class Game {
             return;
         }
 
-        this.existingShapes.push(shape);
-
-        this.socket.send(JSON.stringify({
-            type: "chat",
-            message: JSON.stringify({
-                shape
-            }),
-            roomId: this.roomId
-        }));
+        this.addShape(shape);
     };
 
     mouseMoveHandler = (e: MouseEvent) => {
@@ -232,7 +321,7 @@ export class Game {
                 
                 // Draw current pencil stroke
                 this.applyTransform();
-                this.ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+                this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
                 this.ctx.lineWidth = 2;
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.pencilPoints[0].x, this.pencilPoints[0].y);
@@ -249,7 +338,7 @@ export class Game {
             this.clearCanvas();
             
             this.applyTransform();
-            this.ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+            this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
             this.ctx.lineWidth = 2;
             
             const selectedTool = this.selectedTool;

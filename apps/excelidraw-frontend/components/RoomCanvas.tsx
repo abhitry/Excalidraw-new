@@ -31,7 +31,7 @@ export function RoomCanvas({roomId}: {roomId: string}) {
         };
 
         ws.onerror = (error) => {
-            console.error("WebSocket error:", error);
+            console.error("WebSocket connection failed");
             setConnecting(false);
         };
 
