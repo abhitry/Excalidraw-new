@@ -24,7 +24,6 @@ type Shape = {
 }
 
 export class Game {
-
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private existingShapes: Shape[];
@@ -32,13 +31,16 @@ export class Game {
     private clicked: boolean;
     private startX = 0;
     private startY = 0;
-    private selectedTool: Tool = "circle";
+    private selectedTool: Tool = "pencil";
     private pencilPoints: { x: number; y: number }[] = [];
     private scale = 1;
     private offsetX = 0;
     private offsetY = 0;
     private isTyping = false;
     private textInput: HTMLInputElement | null = null;
+    private isDragging = false;
+    private lastPanX = 0;
+    private lastPanY = 0;
 
     socket: WebSocket;
 
@@ -49,6 +51,10 @@ export class Game {
         this.roomId = roomId;
         this.socket = socket;
         this.clicked = false;
+        
+        this.resizeCanvas();
+        window.addEventListener('resize', this.resizeCanvas);
+        
         this.init();
         this.initHandlers();
         this.initMouseHandlers();
@@ -56,6 +62,7 @@ export class Game {
     }
     
     destroy() {
+        window.removeEventListener('resize', this.resizeCanvas);
         this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
         this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
         this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
@@ -63,7 +70,13 @@ export class Game {
         this.removeTextInput();
     }
 
-    setTool(tool: "circle" | "pencil" | "rect" | "text") {
+    resizeCanvas = () => {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.clearCanvas();
+    };
+
+    setTool(tool: Tool) {
         this.selectedTool = tool;
         if (tool !== "text") {
             this.removeTextInput();
@@ -81,12 +94,12 @@ export class Game {
     async init() {
         try {
             this.existingShapes = await getExistingShapes(this.roomId);
+            this.clearCanvas();
         } catch (error) {
             console.error("Failed to load existing shapes:", error);
             this.existingShapes = [];
+            this.clearCanvas();
         }
-        console.log(this.existingShapes);
-        this.clearCanvas();
     }
 
     initHandlers() {
@@ -108,7 +121,6 @@ export class Game {
     }
 
     initZoomAndPan() {
-        // Add zoom functionality
         this.canvas.addEventListener("wheel", this.wheelHandler);
     }
 
@@ -123,7 +135,6 @@ export class Game {
         const newScale = Math.max(0.1, Math.min(5, this.scale * zoom));
         
         if (newScale !== this.scale) {
-            // Adjust offset to zoom towards mouse position
             this.offsetX = mouseX - (mouseX - this.offsetX) * (newScale / this.scale);
             this.offsetY = mouseY - (mouseY - this.offsetY) * (newScale / this.scale);
             this.scale = newScale;
@@ -151,15 +162,22 @@ export class Game {
     }
 
     clearCanvas() {
+        // Clear entire canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background').trim() || "#ffffff";
+        
+        // Set background
+        this.ctx.fillStyle = "hsl(var(--background))";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.applyTransform();
 
+        // Draw all existing shapes
         this.existingShapes.forEach((shape) => {
-            this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
+            this.ctx.strokeStyle = "hsl(var(--foreground))";
+            this.ctx.fillStyle = "hsl(var(--foreground))";
             this.ctx.lineWidth = 2;
+            this.ctx.lineCap = "round";
+            this.ctx.lineJoin = "round";
             
             if (shape.type === "rect") {
                 this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
@@ -176,8 +194,7 @@ export class Game {
                 }
                 this.ctx.stroke();
             } else if (shape.type === "text") {
-                this.ctx.font = `${shape.fontSize}px Arial`;
-                this.ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
+                this.ctx.font = `${shape.fontSize}px Inter, system-ui, sans-serif`;
                 this.ctx.fillText(shape.text, shape.x, shape.y);
             }
         });
@@ -186,6 +203,14 @@ export class Game {
     }
 
     mouseDownHandler = (e: MouseEvent) => {
+        if (e.button === 1 || e.button === 2) { // Middle or right click for panning
+            this.isDragging = true;
+            this.lastPanX = e.clientX;
+            this.lastPanY = e.clientY;
+            this.canvas.style.cursor = "grabbing";
+            return;
+        }
+
         if (this.selectedTool === "text") {
             this.removeTextInput();
             const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
@@ -208,18 +233,20 @@ export class Game {
         
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = 'Enter text...';
+        input.placeholder = 'Type here...';
         input.style.position = 'absolute';
         input.style.left = `${x * this.scale + this.offsetX}px`;
-        input.style.top = `${y * this.scale + this.offsetY}px`;
+        input.style.top = `${y * this.scale + this.offsetY - 10}px`;
         input.style.fontSize = `${20 * this.scale}px`;
-        input.style.border = '2px solid #3b82f6';
-        input.style.borderRadius = '4px';
-        input.style.padding = '4px 8px';
-        input.style.background = 'white';
-        input.style.color = 'black';
+        input.style.border = '2px solid hsl(var(--primary))';
+        input.style.borderRadius = '8px';
+        input.style.padding = '8px 12px';
+        input.style.background = 'hsl(var(--background))';
+        input.style.color = 'hsl(var(--foreground))';
         input.style.zIndex = '1001';
-        input.style.minWidth = '100px';
+        input.style.minWidth = '120px';
+        input.style.fontFamily = 'Inter, system-ui, sans-serif';
+        input.style.outline = 'none';
         
         this.textInput = input;
         this.isTyping = true;
@@ -231,7 +258,7 @@ export class Game {
                 const shape: Shape = {
                     type: "text",
                     x,
-                    y,
+                    y: y + 20, // Adjust for baseline
                     text: input.value.trim(),
                     fontSize: 20
                 };
@@ -249,7 +276,7 @@ export class Game {
                 const shape: Shape = {
                     type: "text",
                     x,
-                    y,
+                    y: y + 20,
                     text: input.value.trim(),
                     fontSize: 20
                 };
@@ -271,6 +298,13 @@ export class Game {
     }
 
     mouseUpHandler = (e: MouseEvent) => {
+        if (this.isDragging) {
+            this.isDragging = false;
+            this.canvas.style.cursor = this.selectedTool === "pencil" ? "crosshair" : 
+                                      this.selectedTool === "text" ? "text" : "default";
+            return;
+        }
+
         if (!this.clicked || this.selectedTool === "text") return;
         
         this.clicked = false;
@@ -278,40 +312,53 @@ export class Game {
         const width = coords.x - this.startX;
         const height = coords.y - this.startY;
 
-        const selectedTool = this.selectedTool;
         let shape: Shape | null = null;
         
-        if (selectedTool === "rect") {
+        if (this.selectedTool === "rect" && (Math.abs(width) > 5 || Math.abs(height) > 5)) {
             shape = {
                 type: "rect",
-                x: this.startX,
-                y: this.startY,
-                height,
-                width
+                x: Math.min(this.startX, coords.x),
+                y: Math.min(this.startY, coords.y),
+                height: Math.abs(height),
+                width: Math.abs(width)
             };
-        } else if (selectedTool === "circle") {
-            const radius = Math.max(width, height) / 2;
-            shape = {
-                type: "circle",
-                radius: radius,
-                centerX: this.startX + radius,
-                centerY: this.startY + radius,
-            };
-        } else if (selectedTool === "pencil" && this.pencilPoints.length > 1) {
+        } else if (this.selectedTool === "circle") {
+            const radius = Math.sqrt(width * width + height * height) / 2;
+            if (radius > 5) {
+                shape = {
+                    type: "circle",
+                    radius: radius,
+                    centerX: this.startX + width / 2,
+                    centerY: this.startY + height / 2,
+                };
+            }
+        } else if (this.selectedTool === "pencil" && this.pencilPoints.length > 1) {
             shape = {
                 type: "pencil",
                 points: [...this.pencilPoints]
             };
         }
 
-        if (!shape) {
-            return;
+        if (shape) {
+            this.addShape(shape);
         }
-
-        this.addShape(shape);
     };
 
     mouseMoveHandler = (e: MouseEvent) => {
+        if (this.isDragging) {
+            const deltaX = e.clientX - this.lastPanX;
+            const deltaY = e.clientY - this.lastPanY;
+            
+            this.offsetX += deltaX;
+            this.offsetY += deltaY;
+            
+            this.lastPanX = e.clientX;
+            this.lastPanY = e.clientY;
+            
+            this.clearCanvas();
+            return;
+        }
+
         if (this.clicked) {
             const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
             
@@ -321,8 +368,10 @@ export class Game {
                 
                 // Draw current pencil stroke
                 this.applyTransform();
-                this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
+                this.ctx.strokeStyle = "hsl(var(--foreground))";
                 this.ctx.lineWidth = 2;
+                this.ctx.lineCap = "round";
+                this.ctx.lineJoin = "round";
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.pencilPoints[0].x, this.pencilPoints[0].y);
                 for (let i = 1; i < this.pencilPoints.length; i++) {
@@ -338,16 +387,22 @@ export class Game {
             this.clearCanvas();
             
             this.applyTransform();
-            this.ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--foreground').trim() || "#000000";
+            this.ctx.strokeStyle = "hsl(var(--primary))";
             this.ctx.lineWidth = 2;
+            this.ctx.lineCap = "round";
+            this.ctx.lineJoin = "round";
             
-            const selectedTool = this.selectedTool;
-            if (selectedTool === "rect") {
-                this.ctx.strokeRect(this.startX, this.startY, width, height);
-            } else if (selectedTool === "circle") {
-                const radius = Math.max(width, height) / 2;
-                const centerX = this.startX + radius;
-                const centerY = this.startY + radius;
+            if (this.selectedTool === "rect") {
+                this.ctx.strokeRect(
+                    Math.min(this.startX, coords.x), 
+                    Math.min(this.startY, coords.y), 
+                    Math.abs(width), 
+                    Math.abs(height)
+                );
+            } else if (this.selectedTool === "circle") {
+                const radius = Math.sqrt(width * width + height * height) / 2;
+                const centerX = this.startX + width / 2;
+                const centerY = this.startY + height / 2;
                 this.ctx.beginPath();
                 this.ctx.arc(centerX, centerY, Math.abs(radius), 0, Math.PI * 2);
                 this.ctx.stroke();
@@ -362,5 +417,8 @@ export class Game {
         this.canvas.addEventListener("mousedown", this.mouseDownHandler);
         this.canvas.addEventListener("mouseup", this.mouseUpHandler);
         this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+        
+        // Prevent context menu on right click
+        this.canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     }
 }
