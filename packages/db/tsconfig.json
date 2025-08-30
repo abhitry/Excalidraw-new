@@ -1,0 +1,8 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",    // compiled JS goes here
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
