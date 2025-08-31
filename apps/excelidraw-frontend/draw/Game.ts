@@ -105,11 +105,13 @@ export class Game {
     initHandlers() {
         this.socket.onmessage = (event) => {
             const message = JSON.parse(event.data);
+            console.log("Received WebSocket message:", message);
 
             if (message.type === "chat") {
                 try {
                     const parsedShape = JSON.parse(message.message);
                     if (parsedShape.shape) {
+                        console.log("Adding shape to canvas:", parsedShape.shape);
                         this.existingShapes.push(parsedShape.shape);
                         this.clearCanvas();
                     }
@@ -165,16 +167,18 @@ export class Game {
         // Clear entire canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Set background
-        this.ctx.fillStyle = "hsl(var(--background))";
+        // Set background based on theme
+        const isDark = document.documentElement.classList.contains('dark');
+        this.ctx.fillStyle = isDark ? "#0f172a" : "#ffffff";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.applyTransform();
 
         // Draw all existing shapes
         this.existingShapes.forEach((shape) => {
-            this.ctx.strokeStyle = "hsl(var(--foreground))";
-            this.ctx.fillStyle = "hsl(var(--foreground))";
+            const isDark = document.documentElement.classList.contains('dark');
+            this.ctx.strokeStyle = isDark ? "#e2e8f0" : "#1e293b";
+            this.ctx.fillStyle = isDark ? "#e2e8f0" : "#1e293b";
             this.ctx.lineWidth = 2;
             this.ctx.lineCap = "round";
             this.ctx.lineJoin = "round";
@@ -238,11 +242,11 @@ export class Game {
         input.style.left = `${x * this.scale + this.offsetX}px`;
         input.style.top = `${y * this.scale + this.offsetY - 10}px`;
         input.style.fontSize = `${20 * this.scale}px`;
-        input.style.border = '2px solid hsl(var(--primary))';
+        input.style.border = '2px solid #3b82f6';
         input.style.borderRadius = '8px';
         input.style.padding = '8px 12px';
-        input.style.background = 'hsl(var(--background))';
-        input.style.color = 'hsl(var(--foreground))';
+        input.style.background = 'white';
+        input.style.color = '#1e293b';
         input.style.zIndex = '1001';
         input.style.minWidth = '120px';
         input.style.fontFamily = 'Inter, system-ui, sans-serif';
@@ -287,14 +291,18 @@ export class Game {
     }
 
     addShape(shape: Shape) {
+        console.log("Adding shape locally:", shape);
         this.existingShapes.push(shape);
         this.clearCanvas();
         
-        this.socket.send(JSON.stringify({
+        const message = JSON.stringify({
             type: "chat",
             message: JSON.stringify({ shape }),
             roomId: this.roomId
-        }));
+        });
+        
+        console.log("Sending shape via WebSocket:", message);
+        this.socket.send(message);
     }
 
     mouseUpHandler = (e: MouseEvent) => {
@@ -368,7 +376,8 @@ export class Game {
                 
                 // Draw current pencil stroke
                 this.applyTransform();
-                this.ctx.strokeStyle = "hsl(var(--foreground))";
+                const isDark = document.documentElement.classList.contains('dark');
+                this.ctx.strokeStyle = isDark ? "#3b82f6" : "#1d4ed8";
                 this.ctx.lineWidth = 2;
                 this.ctx.lineCap = "round";
                 this.ctx.lineJoin = "round";
@@ -387,7 +396,7 @@ export class Game {
             this.clearCanvas();
             
             this.applyTransform();
-            this.ctx.strokeStyle = "hsl(var(--primary))";
+            this.ctx.strokeStyle = "#3b82f6";
             this.ctx.lineWidth = 2;
             this.ctx.lineCap = "round";
             this.ctx.lineJoin = "round";

@@ -57,7 +57,7 @@ export function Canvas({
     };
 
     return (
-        <div className="h-screen w-screen overflow-hidden relative bg-gradient-to-br from-purple-50/30 via-pink-50/30 to-indigo-100/30 dark:from-gray-900 dark:via-purple-950 dark:to-indigo-950">
+        <div className="h-screen w-screen overflow-hidden relative bg-gradient-to-br from-blue-50/30 via-indigo-50/30 to-slate-100/30 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950">
             <canvas 
                 ref={canvasRef} 
                 className={`absolute inset-0 ${
@@ -97,14 +97,14 @@ function Topbar({
         <>
             {/* Main Toolbar */}
             <div className="fixed top-6 left-6 z-50 flex items-center gap-4">
-                <div className="flex items-center gap-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-purple-200 dark:border-purple-800 rounded-2xl p-3 shadow-2xl">
+                <div className="flex items-center gap-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-2xl p-3 shadow-2xl">
                     <IconButton 
                         onClick={onBack}
                         activated={false}
                         icon={<ArrowLeft className="h-5 w-5" />}
                         tooltip="Back to rooms"
                     />
-                    <div className="w-px h-8 bg-purple-200 dark:bg-purple-700" />
+                    <div className="w-px h-8 bg-blue-200 dark:bg-blue-700" />
                     <IconButton 
                         onClick={() => setSelectedTool("pencil")}
                         activated={selectedTool === "pencil"}
@@ -129,7 +129,7 @@ function Topbar({
                         icon={<Type className="h-5 w-5" />}
                         tooltip="Text Tool"
                     />
-                    <div className="w-px h-8 bg-purple-200 dark:bg-purple-700" />
+                    <div className="w-px h-8 bg-blue-200 dark:bg-blue-700" />
                     <IconButton 
                         onClick={onReset}
                         activated={false} 
@@ -142,9 +142,9 @@ function Topbar({
 
             {/* User Info & Room Info */}
             <div className="fixed top-6 right-6 z-50 flex items-center gap-4">
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-purple-200 dark:border-purple-800 rounded-2xl p-4 shadow-2xl">
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-2xl p-4 shadow-2xl">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
                             <Users className="h-5 w-5 text-white" />
                         </div>
                         <div className="text-sm">
@@ -157,9 +157,9 @@ function Topbar({
 
             {/* Instructions */}
             <div className="fixed bottom-6 left-6 z-50">
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-purple-200 dark:border-purple-800 rounded-2xl p-4 shadow-2xl max-w-sm">
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-2xl p-4 shadow-2xl max-w-sm">
                     <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Palette className="h-4 w-4 text-white" />
                         </div>
                         <div className="text-sm">

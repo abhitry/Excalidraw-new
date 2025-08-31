@@ -12,8 +12,8 @@ export function IconButton({
         <div 
             className={`cursor-pointer rounded-xl p-3 transition-all duration-200 hover:scale-105 ${
                 activated 
-                    ? "bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white shadow-lg" 
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400"
+                    ? "bg-gradient-to-r from-blue-500 via-indigo-500 to-slate-500 text-white shadow-lg" 
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400"
             }`}
             onClick={onClick}
             title={tooltip}

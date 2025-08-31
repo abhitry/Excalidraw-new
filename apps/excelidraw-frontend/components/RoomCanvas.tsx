@@ -56,11 +56,11 @@ export function RoomCanvas({roomId}: {roomId: string}) {
    
     if (connecting) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 dark:from-gray-900 dark:via-purple-950 dark:to-indigo-950 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-100 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center">
                 <div className="text-center">
                     <div className="relative mb-6">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-xl opacity-30 animate-pulse" />
-                        <div className="relative w-16 h-16 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur-xl opacity-30 animate-pulse" />
+                        <div className="relative w-16 h-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
                             <Palette className="w-8 h-8 text-white animate-spin" />
                         </div>
                     </div>
@@ -77,9 +77,9 @@ export function RoomCanvas({roomId}: {roomId: string}) {
 
     if (connectionError || !socket) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 dark:from-gray-900 dark:via-purple-950 dark:to-indigo-950 flex items-center justify-center">
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-100 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center">
                 <div className="text-center max-w-md mx-auto p-8">
-                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
                         <WifiOff className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-foreground mb-2">Connection Failed</h3>
@@ -89,13 +89,13 @@ export function RoomCanvas({roomId}: {roomId: string}) {
                     <div className="flex gap-3 justify-center">
                         <button 
                             onClick={() => window.location.reload()} 
-                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg"
+                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg"
                         >
                             Try Again
                         </button>
                         <button 
                             onClick={() => router.push("/room")} 
-                            className="px-6 py-3 border border-purple-200 dark:border-purple-700 bg-white dark:bg-gray-800 text-foreground hover:bg-purple-50 dark:hover:bg-purple-900/20 font-semibold rounded-xl transition-all duration-200"
+                            className="px-6 py-3 border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 text-foreground hover:bg-blue-50 dark:hover:bg-blue-900/20 font-semibold rounded-xl transition-all duration-200"
                         >
                             Back to Rooms
                         </button>
