@@ -95,6 +95,15 @@ export class Game {
         if (tool !== "text") {
             this.removeTextInput();
         }
+        
+        // Update cursor based on tool
+        if (tool === "pencil") {
+            this.canvas.style.cursor = "crosshair";
+        } else if (tool === "eraser") {
+            this.canvas.style.cursor = "pointer";
+        } else {
+            this.canvas.style.cursor = "default";
+        }
     }
 
     removeTextInput() {
@@ -125,6 +134,86 @@ export class Game {
         });
         
         console.log("Sending clear canvas command:", message);
+        this.socket.send(message);
+    }
+
+    // Check if a point is inside a shape
+    isPointInShape(x: number, y: number, shape: Shape): boolean {
+        if (shape.type === "rect") {
+            return x >= shape.x && x <= shape.x + shape.width &&
+                   y >= shape.y && y <= shape.y + shape.height;
+        } else if (shape.type === "circle") {
+            const distance = Math.sqrt(
+                Math.pow(x - shape.centerX, 2) + Math.pow(y - shape.centerY, 2)
+            );
+            return distance <= shape.radius;
+        } else if (shape.type === "pencil") {
+            // For pencil strokes, check if point is near any line segment
+            const threshold = 10; // pixels
+            for (let i = 0; i < shape.points.length - 1; i++) {
+                const p1 = shape.points[i];
+                const p2 = shape.points[i + 1];
+                const distance = this.distanceToLineSegment(x, y, p1.x, p1.y, p2.x, p2.y);
+                if (distance <= threshold) {
+                    return true;
+                }
+            }
+            return false;
+        } else if (shape.type === "text") {
+            // Simple bounding box for text (approximate)
+            const textWidth = shape.text.length * shape.fontSize * 0.6;
+            const textHeight = shape.fontSize;
+            return x >= shape.x && x <= shape.x + textWidth &&
+                   y >= shape.y - textHeight && y <= shape.y;
+        }
+        return false;
+    }
+
+    // Calculate distance from point to line segment
+    distanceToLineSegment(px: number, py: number, x1: number, y1: number, x2: number, y2: number): number {
+        const A = px - x1;
+        const B = py - y1;
+        const C = x2 - x1;
+        const D = y2 - y1;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = -1;
+        if (lenSq !== 0) {
+            param = dot / lenSq;
+        }
+
+        let xx, yy;
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        } else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        } else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        const dx = px - xx;
+        const dy = py - yy;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // Delete a shape and sync with other users
+    deleteShape(shapeId: string) {
+        console.log("Deleting shape:", shapeId);
+        this.existingShapes = this.existingShapes.filter(shape => shape.id !== shapeId);
+        this.clearCanvas();
+        
+        // Send delete command to other users
+        const message = JSON.stringify({
+            type: "delete_shape",
+            shapeId: shapeId,
+            roomId: this.roomId
+        });
+        
+        console.log("Sending delete shape command:", message);
         this.socket.send(message);
     }
 
@@ -269,6 +358,21 @@ export class Game {
             return;
         }
 
+        // Handle eraser tool
+        if (this.selectedTool === "eraser") {
+            const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
+            
+            // Find the topmost shape at this point (iterate backwards for top-to-bottom)
+            for (let i = this.existingShapes.length - 1; i >= 0; i--) {
+                const shape = this.existingShapes[i];
+                if (this.isPointInShape(coords.x, coords.y, shape)) {
+                    this.deleteShape(shape.id);
+                    break; // Only delete one shape per click
+                }
+            }
+            return;
+        }
+
         if (this.selectedTool === "text") {
             this.removeTextInput();
             const coords = this.getTransformedCoordinates(e.clientX, e.clientY);
@@ -365,11 +469,12 @@ export class Game {
         if (this.isDragging) {
             this.isDragging = false;
             this.canvas.style.cursor = this.selectedTool === "pencil" ? "crosshair" : 
+                                      this.selectedTool === "eraser" ? "pointer" :
                                       this.selectedTool === "text" ? "text" : "default";
             return;
         }
 
-        if (!this.clicked || this.selectedTool === "text") return;
+        if (!this.clicked || this.selectedTool === "text" || this.selectedTool === "eraser") return;
         
         this.clicked = false;
         const coords = this.getTransformedCoordinates(e.clientX, e.clientY);

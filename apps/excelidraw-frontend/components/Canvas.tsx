@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
-import { Circle, Pencil, RectangleHorizontalIcon, RotateCcw, ArrowLeft, Palette, Users, Trash2, Copy, Download } from "lucide-react";
+import { Circle, Pencil, RectangleHorizontalIcon, RotateCcw, ArrowLeft, Palette, Users, Trash2, Copy, Download, Eraser } from "lucide-react";
 import { Game } from "@/draw/Game";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
-export type Tool = "circle" | "rect" | "pencil";
+export type Tool = "circle" | "rect" | "pencil" | "eraser";
 
 export function Canvas({
     roomId,
@@ -76,7 +76,8 @@ export function Canvas({
             <canvas 
                 ref={canvasRef} 
                 className={`absolute inset-0 ${
-                    selectedTool === "pencil" ? "cursor-crosshair" : "cursor-default"
+                    selectedTool === "pencil" ? "cursor-crosshair" : 
+                    selectedTool === "eraser" ? "cursor-pointer" : "cursor-default"
                 }`}
             />
             <Topbar 
@@ -148,6 +149,12 @@ function Topbar({
                         icon={<Circle className="h-5 w-5" />}
                         tooltip="Circle Tool"
                     />
+                    <IconButton 
+                        onClick={() => setSelectedTool("eraser")} 
+                        activated={selectedTool === "eraser"} 
+                        icon={<Eraser className="h-5 w-5" />}
+                        tooltip="Eraser Tool"
+                    />
                     <div className="w-px h-8 bg-slate-600" />
                     <IconButton 
                         onClick={onReset}
@@ -213,7 +220,7 @@ function Topbar({
                         <div className="text-sm">
                             <p className="font-semibold text-white mb-1">Quick Tips</p>
                             <p className="text-slate-300 text-xs leading-relaxed">
-                                • Mouse wheel to zoom • Right-click + drag to pan • Select tools above • Copy URL to share
+                                • Mouse wheel to zoom • Right-click + drag to pan • Select tools above • Eraser: click shapes to delete • Copy URL to share
                             </p>
                         </div>
                     </div>

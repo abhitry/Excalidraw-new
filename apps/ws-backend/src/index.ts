@@ -124,6 +124,20 @@ wss.on('connection', function connection(ws, request) {
                 const roomId = parsedData.roomId;
                 const shapeId = parsedData.shapeId;
 
+                // Delete the shape from database
+                try {
+                    await prismaClient.chat.deleteMany({
+                        where: {
+                            roomId: Number(roomId),
+                            message: {
+                                contains: `"id":"${shapeId}"`
+                            }
+                        }
+                    });
+                    console.log(`Deleted shape ${shapeId} from database`);
+                } catch (error) {
+                    console.error("Failed to delete shape from database:", error);
+                }
                 // Broadcast delete to all users in the room
                 const usersInRoom = users.filter(user => user.rooms.includes(roomId));
                 console.log(`Broadcasting shape deletion to ${usersInRoom.length} users in room ${roomId}`);
