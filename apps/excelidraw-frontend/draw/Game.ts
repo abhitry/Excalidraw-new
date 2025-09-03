@@ -174,8 +174,13 @@ export class Game {
 
         this.applyTransform();
 
-        // Draw all existing shapes
+        // Draw all existing shapes with null check
         this.existingShapes.forEach((shape) => {
+            if (!shape || !shape.type) {
+                console.warn("Invalid shape found:", shape);
+                return;
+            }
+
             const isDark = document.documentElement.classList.contains('dark');
             this.ctx.strokeStyle = isDark ? "#e2e8f0" : "#1e293b";
             this.ctx.fillStyle = isDark ? "#e2e8f0" : "#1e293b";
@@ -190,7 +195,7 @@ export class Game {
                 this.ctx.arc(shape.centerX, shape.centerY, Math.abs(shape.radius), 0, Math.PI * 2);
                 this.ctx.stroke();
                 this.ctx.closePath();
-            } else if (shape.type === "pencil" && shape.points.length > 1) {
+            } else if (shape.type === "pencil" && shape.points && shape.points.length > 1) {
                 this.ctx.beginPath();
                 this.ctx.moveTo(shape.points[0].x, shape.points[0].y);
                 for (let i = 1; i < shape.points.length; i++) {

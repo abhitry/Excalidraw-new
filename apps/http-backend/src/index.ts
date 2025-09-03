@@ -2,7 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { middleware } from "./middleware.js";
-import  { CreateUserSchema, SigninSchema, CreateRoomSchema } from "@repo/common/types";
+import  { CreateUserSchema, SigninSchema, CreateRoomSchema, JoinRoomSchema } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
 import cors from "cors";
 
@@ -128,6 +128,7 @@ app.post("/room", middleware, async (req, res) => {
         const room = await prismaClient.room.create({
             data: {
                 slug: parsedData.data.name,
+                password: parsedData.data.password || null,
                 adminId: userId
             }
         });
@@ -138,6 +139,55 @@ app.post("/room", middleware, async (req, res) => {
     } catch(e) {
         res.status(411).json({
             message: "Room already exists with this name"
+        });
+    }
+});
+
+app.post("/room/join", middleware, async (req, res) => {
+    const parsedData = JoinRoomSchema.safeParse(req.body);
+    if (!parsedData.success) {
+        const errors = parsedData.error.errors.reduce((acc, error) => {
+            const key = error.path[0] ?? "unknown";
+            acc[key] = error.message;
+            return acc;
+        }, {} as Record<string, string>);
+        
+        res.status(400).json({
+            message: "Validation failed",
+            errors
+        });
+        return;
+    }
+
+    try {
+        const room = await prismaClient.room.findFirst({
+            where: {
+                slug: parsedData.data.name
+            }
+        });
+
+        if (!room) {
+            res.status(404).json({
+                message: "Room not found"
+            });
+            return;
+        }
+
+        // Check password if room has one
+        if (room.password && room.password !== parsedData.data.password) {
+            res.status(403).json({
+                message: "Incorrect room password"
+            });
+            return;
+        }
+
+        res.json({
+            roomId: room.id
+        });
+    } catch(e) {
+        console.error(e);
+        res.status(500).json({
+            message: "Failed to join room"
         });
     }
 });

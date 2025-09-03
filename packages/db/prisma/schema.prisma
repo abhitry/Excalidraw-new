@@ -20,6 +20,7 @@ model User {
 model Room {
   id          Int       @id @default(autoincrement())
   slug        String    @unique
+  password    String?   // New field for room password
   createdAt   DateTime  @default(now())
   adminId     String
   admin       User      @relation(fields: [adminId], references: [id])

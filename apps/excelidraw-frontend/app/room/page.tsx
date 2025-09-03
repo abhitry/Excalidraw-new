@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { HTTP_BACKEND } from "@/config";
-import { ArrowLeft, Users, Plus, Palette, Sparkles, XCircle } from "lucide-react";
+import { ArrowLeft, Users, Plus, Palette, Sparkles, XCircle, Lock, Key } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function RoomPage() {
   const [roomName, setRoomName] = useState("");
+  const [roomPassword, setRoomPassword] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [user, setUser] = useState<any>(null);
@@ -34,7 +36,7 @@ export default function RoomPage() {
     }
   }, [router]);
 
-  const handleSubmit = async () => {
+  const handleCreateRoom = async () => {
     setErrors({});
     
     if (!roomName.trim()) {
@@ -57,6 +59,11 @@ export default function RoomPage() {
       return;
     }
 
+    if (roomPassword && roomPassword.length < 4) {
+      setErrors({ roomPassword: "Password must be at least 4 characters" });
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       setErrors({ general: "Please sign in first." });
@@ -68,7 +75,8 @@ export default function RoomPage() {
 
     try {
       const roomResponse = await axios.post(`${HTTP_BACKEND}/room`, {
-        name: roomName
+        name: roomName,
+        password: roomPassword || undefined
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -104,95 +112,203 @@ export default function RoomPage() {
     }
   };
 
+  const handleJoinRoom = async () => {
+    setErrors({});
+    
+    if (!roomName.trim()) {
+      setErrors({ roomName: "Please enter a room name" });
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setErrors({ general: "Please sign in first." });
+      router.push("/signin");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const joinResponse = await axios.post(`${HTTP_BACKEND}/room/join`, {
+        name: roomName,
+        password: roomPassword || undefined
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const roomId = joinResponse.data.roomId;
+      router.push(`/canvas/${roomId}`);
+    } catch (error) {
+      console.error(error);
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+        
+        if (errorData?.errors) {
+          setErrors(errorData.errors);
+        } else if (error.response?.status === 404) {
+          setErrors({ roomName: "Room not found. Please check the room name." });
+        } else if (error.response?.status === 403) {
+          setErrors({ roomPassword: "Incorrect room password." });
+        } else if (error.response?.status === 400) {
+          setErrors({ general: errorData?.message || "Invalid input." });
+        } else {
+          setErrors({ general: "Failed to join room. Please try again." });
+        }
+      } else {
+        setErrors({ general: "Network error. Please check your connection." });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 dark:from-gray-900 dark:via-purple-950 dark:to-indigo-950 flex items-center justify-center">
+      <div className="min-h-screen animated-gradient flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4" />
+          <p className="text-white/80">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-100 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-indigo-600/5 to-slate-600/5 dark:from-blue-400/5 dark:via-indigo-400/5 dark:to-slate-400/5" />
+    <div className="min-h-screen animated-gradient flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
       
       <div className="absolute top-6 left-6 flex items-center gap-3 z-50">
         <button
           onClick={() => router.push("/")}
-          className="p-3 rounded-xl border border-blue-200 dark:border-blue-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="p-3 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 shadow-lg hover:shadow-xl"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <ArrowLeft className="h-5 w-5 text-white" />
         </button>
         <ThemeToggle />
       </div>
       
       <div className="w-full max-w-lg relative z-10">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-600 rounded-3xl blur-3xl opacity-20" />
-          <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-3xl shadow-2xl p-8">
+          <div className="absolute inset-0 bg-white/20 rounded-3xl blur-3xl opacity-30" />
+          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8">
             
             {/* Header */}
             <div className="text-center mb-8">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur-xl opacity-30 animate-pulse" />
-                <div className="relative w-16 h-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
+                <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl opacity-50 animate-pulse" />
+                <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto shadow-2xl border border-white/30">
                   <Users className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-600 bg-clip-text text-transparent">
-                  Create Your Space
-                </span>
+              <h2 className="text-3xl font-bold mb-2 text-white">
+                {isJoining ? "Join Workspace" : "Create Your Space"}
               </h2>
-              <p className="text-muted-foreground mb-4">
-                Welcome back, <span className="font-semibold text-foreground">{user.name}</span>!
+              <p className="text-white/80 mb-4">
+                Welcome back, <span className="font-semibold text-white">{user.name}</span>!
               </p>
-              <p className="text-sm text-muted-foreground">
-                Start a new collaborative drawing session
+              <p className="text-sm text-white/70">
+                {isJoining ? "Enter room details to join" : "Start a new collaborative drawing session"}
               </p>
+            </div>
+
+            {/* Toggle between Create and Join */}
+            <div className="flex mb-6 bg-white/10 backdrop-blur-sm rounded-xl p-1 border border-white/20">
+              <button
+                onClick={() => setIsJoining(false)}
+                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
+                  !isJoining 
+                    ? 'bg-white/20 text-white shadow-lg' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Create Room
+              </button>
+              <button
+                onClick={() => setIsJoining(true)}
+                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
+                  isJoining 
+                    ? 'bg-white/20 text-white shadow-lg' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Join Room
+              </button>
             </div>
 
             {/* Error Display */}
             {errors.general && (
-              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <p className="text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2">
+              <div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl backdrop-blur-sm">
+                <p className="text-red-200 text-sm font-medium flex items-center gap-2">
                   <XCircle className="h-4 w-4" />
                   {errors.general}
                 </p>
               </div>
             )}
 
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
+            <form onSubmit={(e) => { 
+              e.preventDefault(); 
+              isJoining ? handleJoinRoom() : handleCreateRoom(); 
+            }} className="space-y-6">
+              
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-foreground">
+                <label className="block text-sm font-semibold text-white">
                   Room Name
                 </label>
                 <div className="relative">
-                  <Plus className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Plus className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
                   <input
                     type="text"
                     placeholder="e.g., Team Brainstorm, Design Review"
                     value={roomName}
                     onChange={(e) => setRoomName(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white dark:bg-gray-800 text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                      errors.roomName ? 'border-red-300 dark:border-red-700' : 'border-blue-200 dark:border-blue-700 hover:border-blue-300 dark:hover:border-blue-600'
+                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
+                      errors.roomName ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
                     }`}
                     disabled={loading}
                     maxLength={30}
                   />
                 </div>
                 {errors.roomName && (
-                  <p className="text-red-500 text-sm font-medium flex items-center gap-1">
+                  <p className="text-red-200 text-sm font-medium flex items-center gap-1">
                     <XCircle className="h-4 w-4" />
                     {errors.roomName}
                   </p>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  3-30 characters • Letters, numbers, spaces, hyphens, and underscores only
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-white">
+                  Room Password {!isJoining && <span className="text-white/60">(Optional)</span>}
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
+                  <input
+                    type="password"
+                    placeholder={isJoining ? "Enter room password" : "Set room password (optional)"}
+                    value={roomPassword}
+                    onChange={(e) => setRoomPassword(e.target.value)}
+                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
+                      errors.roomPassword ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                    }`}
+                    disabled={loading}
+                    maxLength={20}
+                  />
+                </div>
+                {errors.roomPassword && (
+                  <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                    <XCircle className="h-4 w-4" />
+                    {errors.roomPassword}
+                  </p>
+                )}
+                <p className="text-xs text-white/60">
+                  {isJoining 
+                    ? "Enter the password provided by the room creator"
+                    : "Set a password to make your room private (4-20 characters)"
+                  }
                 </p>
               </div>
 
@@ -200,22 +316,30 @@ export default function RoomPage() {
                 <button
                   type="submit"
                   disabled={loading || !roomName.trim()}
-                  className="group relative w-full h-14 bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-600 hover:from-blue-700 hover:via-indigo-700 hover:to-slate-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-2xl hover:shadow-blue-500/25"
+                  className="group relative w-full h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-2xl hover:shadow-white/25 border border-white/30"
                 >
                   <span className="relative z-10 flex items-center justify-center">
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                        Creating Room...
+                        {isJoining ? "Joining Room..." : "Creating Room..."}
                       </>
                     ) : (
                       <>
-                        Create & Start Drawing
-                        <Sparkles className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                        {isJoining ? (
+                          <>
+                            Join Room
+                            <Key className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                          </>
+                        ) : (
+                          <>
+                            Create & Start Drawing
+                            <Sparkles className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
+                          </>
+                        )}
                       </>
                     )}
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
               </div>
             </form>
@@ -228,7 +352,7 @@ export default function RoomPage() {
                   localStorage.removeItem("authUser");
                   router.push("/signin");
                 }}
-                className="text-sm text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                className="text-sm text-white/70 hover:text-white transition-colors font-medium"
               >
                 Sign out
               </button>

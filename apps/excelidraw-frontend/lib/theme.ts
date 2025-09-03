@@ -15,6 +15,10 @@ export function getStoredTheme(): Theme {
 export function setStoredTheme(theme: Theme) {
   localStorage.setItem('theme', theme);
   document.documentElement.classList.toggle('dark', theme === 'dark');
+  
+  // Force canvas redraw when theme changes
+  const event = new CustomEvent('themeChanged', { detail: { theme } });
+  window.dispatchEvent(event);
 }
 
 export function initializeTheme() {

@@ -28,7 +28,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
+    return <div className="min-h-screen bg-white dark:bg-gray-900" />;
   }
 
   return (

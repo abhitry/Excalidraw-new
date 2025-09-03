@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
-import { Circle, Pencil, RectangleHorizontalIcon, Type, RotateCcw, ArrowLeft, Palette, Users } from "lucide-react";
+import { Circle, Pencil, RectangleHorizontalIcon, RotateCcw, ArrowLeft, Palette, Users, Trash2, Copy, Download } from "lucide-react";
 import { Game } from "@/draw/Game";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
-export type Tool = "circle" | "rect" | "pencil" | "text";
+export type Tool = "circle" | "rect" | "pencil";
 
 export function Canvas({
     roomId,
@@ -18,6 +18,7 @@ export function Canvas({
     const [game, setGame] = useState<Game>();
     const [selectedTool, setSelectedTool] = useState<Tool>("pencil");
     const [user, setUser] = useState<any>(null);
+    const [showCopied, setShowCopied] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -56,23 +57,49 @@ export function Canvas({
         }
     };
 
+    const clearCanvas = () => {
+        if (game) {
+            (game as any).existingShapes = [];
+            (game as any).clearCanvas();
+        }
+    };
+
+    const copyRoomUrl = () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url);
+        setShowCopied(true);
+        setTimeout(() => setShowCopied(false), 2000);
+    };
+
+    const downloadCanvas = () => {
+        if (canvasRef.current) {
+            const link = document.createElement('a');
+            link.download = `drawing-room-${roomId}.png`;
+            link.href = canvasRef.current.toDataURL();
+            link.click();
+        }
+    };
+
     return (
-        <div className="h-screen w-screen overflow-hidden relative bg-gradient-to-br from-blue-50/30 via-indigo-50/30 to-slate-100/30 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950">
+        <div className="h-screen w-screen overflow-hidden relative animated-gradient">
+            <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
             <canvas 
                 ref={canvasRef} 
                 className={`absolute inset-0 ${
-                    selectedTool === "pencil" ? "cursor-crosshair" : 
-                    selectedTool === "text" ? "cursor-text" : 
-                    "cursor-default"
+                    selectedTool === "pencil" ? "cursor-crosshair" : "cursor-default"
                 }`}
             />
             <Topbar 
                 setSelectedTool={setSelectedTool} 
                 selectedTool={selectedTool}
                 onReset={resetCanvas}
+                onClear={clearCanvas}
                 onBack={() => router.push("/room")}
+                onCopyUrl={copyRoomUrl}
+                onDownload={downloadCanvas}
                 user={user}
                 roomId={roomId}
+                showCopied={showCopied}
             />
         </div>
     );
@@ -82,29 +109,37 @@ function Topbar({
     selectedTool, 
     setSelectedTool, 
     onReset, 
+    onClear,
     onBack, 
+    onCopyUrl,
+    onDownload,
     user, 
-    roomId
+    roomId,
+    showCopied
 }: {
     selectedTool: Tool;
     setSelectedTool: (s: Tool) => void;
     onReset: () => void;
+    onClear: () => void;
     onBack: () => void;
+    onCopyUrl: () => void;
+    onDownload: () => void;
     user: any;
     roomId: string;
+    showCopied: boolean;
 }) {
     return (
         <>
             {/* Main Toolbar */}
             <div className="fixed top-6 left-6 z-50 flex items-center gap-4">
-                <div className="flex items-center gap-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-2xl p-3 shadow-2xl">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl">
                     <IconButton 
                         onClick={onBack}
                         activated={false}
                         icon={<ArrowLeft className="h-5 w-5" />}
                         tooltip="Back to rooms"
                     />
-                    <div className="w-px h-8 bg-blue-200 dark:bg-blue-700" />
+                    <div className="w-px h-8 bg-white/30" />
                     <IconButton 
                         onClick={() => setSelectedTool("pencil")}
                         activated={selectedTool === "pencil"}
@@ -123,18 +158,18 @@ function Topbar({
                         icon={<Circle className="h-5 w-5" />}
                         tooltip="Circle Tool"
                     />
-                    <IconButton 
-                        onClick={() => setSelectedTool("text")} 
-                        activated={selectedTool === "text"} 
-                        icon={<Type className="h-5 w-5" />}
-                        tooltip="Text Tool"
-                    />
-                    <div className="w-px h-8 bg-blue-200 dark:bg-blue-700" />
+                    <div className="w-px h-8 bg-white/30" />
                     <IconButton 
                         onClick={onReset}
                         activated={false} 
                         icon={<RotateCcw className="h-5 w-5" />}
                         tooltip="Reset View"
+                    />
+                    <IconButton 
+                        onClick={onClear}
+                        activated={false} 
+                        icon={<Trash2 className="h-5 w-5" />}
+                        tooltip="Clear Canvas"
                     />
                 </div>
                 <ThemeToggle />
@@ -142,30 +177,53 @@ function Topbar({
 
             {/* User Info & Room Info */}
             <div className="fixed top-6 right-6 z-50 flex items-center gap-4">
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-2xl p-4 shadow-2xl">
+                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                             <Users className="h-5 w-5 text-white" />
                         </div>
                         <div className="text-sm">
-                            <p className="font-semibold text-foreground">{user?.name}</p>
-                            <p className="text-muted-foreground">Room #{roomId}</p>
+                            <p className="font-semibold text-white">{user?.name}</p>
+                            <p className="text-white/70">Room #{roomId}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* Action Buttons */}
+            <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+                <div className="relative">
+                    <IconButton 
+                        onClick={onCopyUrl}
+                        activated={false}
+                        icon={<Copy className="h-5 w-5" />}
+                        tooltip="Copy Room URL"
+                    />
+                    {showCopied && (
+                        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-3 py-1 rounded-lg backdrop-blur-sm">
+                            Copied!
+                        </div>
+                    )}
+                </div>
+                <IconButton 
+                    onClick={onDownload}
+                    activated={false}
+                    icon={<Download className="h-5 w-5" />}
+                    tooltip="Download Canvas"
+                />
+            </div>
+
             {/* Instructions */}
             <div className="fixed bottom-6 left-6 z-50">
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-blue-200 dark:border-blue-800 rounded-2xl p-4 shadow-2xl max-w-sm">
+                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl max-w-sm">
                     <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0 border border-white/30">
                             <Palette className="h-4 w-4 text-white" />
                         </div>
                         <div className="text-sm">
-                            <p className="font-semibold text-foreground mb-1">Quick Tips</p>
-                            <p className="text-muted-foreground text-xs leading-relaxed">
-                                • Mouse wheel to zoom • Drag to pan • Select tools above • Share room URL to collaborate
+                            <p className="font-semibold text-white mb-1">Quick Tips</p>
+                            <p className="text-white/70 text-xs leading-relaxed">
+                                • Mouse wheel to zoom • Right-click + drag to pan • Select tools above • Copy URL to share
                             </p>
                         </div>
                     </div>

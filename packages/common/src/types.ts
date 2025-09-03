@@ -27,5 +27,19 @@ export const CreateRoomSchema = z.object({
     name: z.string()
         .min(3, "Room name must be at least 3 characters")
         .max(30, "Room name must be less than 30 characters")
-        .regex(/^[a-zA-Z0-9\s-_]+$/, "Room name can only contain letters, numbers, spaces, hyphens, and underscores")
+        .regex(/^[a-zA-Z0-9\s-_]+$/, "Room name can only contain letters, numbers, spaces, hyphens, and underscores"),
+    password: z.string()
+        .min(4, "Room password must be at least 4 characters")
+        .max(20, "Room password must be less than 20 characters")
+        .optional()
+})
+
+export const JoinRoomSchema = z.object({
+    name: z.string()
+        .min(3, "Room name must be at least 3 characters")
+        .max(30, "Room name must be less than 30 characters"),
+    password: z.string()
+        .min(4, "Room password must be at least 4 characters")
+        .max(20, "Room password must be less than 20 characters")
+        .optional()
 })
