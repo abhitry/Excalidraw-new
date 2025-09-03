@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-export default function NotFound() {
+function NotFound() {
   const router = useRouter();
 
   return (
@@ -39,3 +39,5 @@ export default function NotFound() {
     </div>
   );
 }
+
+export default NotFound;
