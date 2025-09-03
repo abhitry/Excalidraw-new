@@ -134,7 +134,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
         >
           <ArrowLeft className="h-5 w-5 text-slate-300" />
         </button>
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
       </div>
       
       <div className="w-full max-w-md relative z-10">

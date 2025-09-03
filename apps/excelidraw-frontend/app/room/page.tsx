@@ -192,7 +192,7 @@ export default function RoomPage() {
         >
           <ArrowLeft className="h-5 w-5 text-slate-300" />
         </button>
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
       </div>
       
       <div className="w-full max-w-lg relative z-10">

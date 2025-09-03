@@ -7,9 +7,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 function App() {
   return (
     <div className="min-h-screen clean-bg-primary">
-      <div className="absolute top-6 right-6 z-50">
+      {/* <div className="absolute top-6 right-6 z-50">
         <ThemeToggle />
-      </div>
+      </div> */}
       
       {/* Hero Section */}
       <header className="relative overflow-hidden">
