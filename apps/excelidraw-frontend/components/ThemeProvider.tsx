@@ -26,6 +26,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setStoredTheme(newTheme);
   };
 
+  // Prevent hydration mismatch by not rendering theme-dependent content until mounted
   if (!mounted) {
     return (
       <div className="min-h-screen bg-slate-900">
@@ -36,7 +37,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <div className={theme}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 }
