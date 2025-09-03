@@ -119,6 +119,49 @@ wss.on('connection', function connection(ws, request) {
                     }
                 });
             }
+
+            if (parsedData.type === "delete_shape") {
+                const roomId = parsedData.roomId;
+                const shapeId = parsedData.shapeId;
+
+                // Broadcast delete to all users in the room
+                const usersInRoom = users.filter(user => user.rooms.includes(roomId));
+                console.log(`Broadcasting shape deletion to ${usersInRoom.length} users in room ${roomId}`);
+                
+                usersInRoom.forEach(user => {
+                    if (user.ws.readyState === WebSocket.OPEN) {
+                        user.ws.send(JSON.stringify({
+                            type: "delete_shape",
+                            shapeId: shapeId,
+                            roomId
+                        }));
+                    }
+                });
+            }
+
+            if (parsedData.type === "clear_canvas") {
+                const roomId = parsedData.roomId;
+
+                // Clear all shapes from database for this room
+                await prismaClient.chat.deleteMany({
+                    where: {
+                        roomId: Number(roomId)
+                    }
+                });
+
+                // Broadcast clear to all users in the room
+                const usersInRoom = users.filter(user => user.rooms.includes(roomId));
+                console.log(`Broadcasting canvas clear to ${usersInRoom.length} users in room ${roomId}`);
+                
+                usersInRoom.forEach(user => {
+                    if (user.ws.readyState === WebSocket.OPEN) {
+                        user.ws.send(JSON.stringify({
+                            type: "clear_canvas",
+                            roomId
+                        }));
+                    }
+                });
+            }
         } catch (error) {
             console.error("Error processing message:", error);
         }

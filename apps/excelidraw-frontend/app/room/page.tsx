@@ -83,8 +83,8 @@ export default function RoomPage() {
         }
       });
 
-      const roomId = roomResponse.data.roomId;
-      router.push(`/canvas/${roomId}`);
+      const roomSlug = roomResponse.data.roomSlug;
+      router.push(`/canvas/${roomSlug}`);
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error)) {
@@ -98,7 +98,12 @@ export default function RoomPage() {
           localStorage.removeItem("authUser");
           router.push("/signin");
         } else if (error.response?.status === 411) {
-          setErrors({ roomName: "Room name already exists. Please choose a different name." });
+          // Room already exists, suggest joining instead
+          setErrors({ 
+            general: `Room "${roomName}" already exists! You can join it instead or choose a different name.`,
+            roomName: "This room name is already taken"
+          });
+          setIsJoining(true); // Switch to join mode automatically
         } else if (error.response?.status === 400) {
           setErrors({ general: errorData?.message || "Invalid input. Please check your room name." });
         } else {
@@ -139,8 +144,8 @@ export default function RoomPage() {
         }
       });
 
-      const roomId = joinResponse.data.roomId;
-      router.push(`/canvas/${roomId}`);
+      const roomSlug = joinResponse.data.roomSlug;
+      router.push(`/canvas/${roomSlug}`);
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error)) {

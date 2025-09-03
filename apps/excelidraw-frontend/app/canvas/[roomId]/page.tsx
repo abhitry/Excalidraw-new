@@ -3,9 +3,9 @@ import { RoomCanvas } from "@/components/RoomCanvas";
 import { notFound } from "next/navigation";
 import { HTTP_BACKEND } from "@/config";
 
-async function getRoomInfo(roomId: string) {
+async function getRoomInfo(roomSlug: string) {
     try {
-        const response = await fetch(`${HTTP_BACKEND}/room/${roomId}/info`, {
+        const response = await fetch(`${HTTP_BACKEND}/room/${roomSlug}`, {
             cache: 'no-store'
         });
         
@@ -23,18 +23,18 @@ async function getRoomInfo(roomId: string) {
 
 export default async function CanvasPage({ params }: {
     params: {
-        roomId: string
+        roomId: string  // This is actually the room slug from the URL
     }
 }) {
-    const roomId = (await params).roomId;
+    const roomSlug = (await params).roomId; // URL param is actually the slug
     
     // Validate that the room exists
-    const roomInfo = await getRoomInfo(roomId);
+    const roomInfo = await getRoomInfo(roomSlug);
     
     if (!roomInfo) {
         notFound();
     }
 
-    return <RoomCanvas roomId={roomId} roomInfo={roomInfo} />
+    return <RoomCanvas roomId={roomInfo.id.toString()} roomInfo={roomInfo} />
    
 }

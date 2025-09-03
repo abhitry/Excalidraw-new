@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Theme, getStoredTheme, setStoredTheme } from '@/lib/theme';
+import { Theme, getStoredTheme, setStoredTheme, initializeTheme } from '@/lib/theme';
 
 interface ThemeContextType {
   theme: Theme;
@@ -11,13 +11,12 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const storedTheme = getStoredTheme();
-    setTheme(storedTheme);
-    //setStoredTheme(storedTheme);
+    const initialTheme = initializeTheme();
+    setTheme(initialTheme);
     setMounted(true);
   }, []);
 
@@ -28,7 +27,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (!mounted) {
-    return <div className="min-h-screen bg-white dark:bg-gray-900" />;
+    return (
+      <div className="min-h-screen bg-slate-900">
+        {children}
+      </div>
+    );
   }
 
   return (

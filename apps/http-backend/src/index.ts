@@ -135,7 +135,8 @@ app.post("/room", middleware, async (req, res) => {
         });
 
         res.json({
-            roomId: room.id
+            roomId: room.id,
+            roomSlug: room.slug
         });
     } catch(e) {
         res.status(411).json({
@@ -183,7 +184,8 @@ app.post("/room/join", middleware, async (req, res) => {
         }
 
         res.json({
-            roomId: room.id
+            roomId: room.id,
+            roomSlug: room.slug
         });
     } catch(e) {
         console.error(e);
@@ -225,13 +227,29 @@ app.get("/chats/:roomId", async (req, res) => {
     }
 });
 
-app.get("/room/:slug", async (req, res) => {
-    const slug = req.params.slug;
+app.get("/room/:roomSlug", async (req, res) => {
+    const roomSlug = req.params.roomSlug;
     const room = await prismaClient.room.findFirst({
         where: {
-            slug
+            slug: roomSlug
+        },
+        include: {
+            admin: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            }
         }
     });
+
+    if (!room) {
+        res.status(404).json({
+            message: "Room not found"
+        });
+        return;
+    }
 
     res.json({
         room

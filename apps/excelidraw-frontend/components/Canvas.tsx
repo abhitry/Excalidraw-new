@@ -48,20 +48,11 @@ export function Canvas({
     }, [canvasRef, roomId, socket]);
 
     const resetCanvas = () => {
-        if (game) {
-            // Reset zoom and pan
-            (game as any).scale = 1;
-            (game as any).offsetX = 0;
-            (game as any).offsetY = 0;
-            (game as any).clearCanvas();
-        }
+        game?.resetView();
     };
 
     const clearCanvas = () => {
-        if (game) {
-            (game as any).existingShapes = [];
-            (game as any).clearCanvas();
-        }
+        game?.clearAllShapes();
     };
 
     const copyRoomUrl = () => {
@@ -183,7 +174,7 @@ function Topbar({
                         </div>
                         <div className="text-sm">
                             <p className="font-semibold text-white">{user?.name}</p>
-                            <p className="text-slate-400">Room #{roomId}</p>
+                            <p className="text-slate-400">Room ID: {roomId}</p>
                         </div>
                     </div>
                 </div>

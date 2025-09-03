@@ -1,7 +1,7 @@
 export type Theme = 'light' | 'dark';
 
 export function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'dark';
   
   const stored = localStorage.getItem('theme');
   if (stored === 'light' || stored === 'dark') {
@@ -9,20 +9,27 @@ export function getStoredTheme(): Theme {
   }
   
   // Check system preference
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return prefersDark ? 'dark' : 'light';
 }
 
 export function setStoredTheme(theme: Theme) {
+  if (typeof window === 'undefined') return;
+  
   localStorage.setItem('theme', theme);
-  document.documentElement.classList.toggle('dark', theme === 'dark');
+  document.documentElement.classList.remove('light', 'dark');
+  document.documentElement.classList.add(theme);
   
   // Force canvas redraw when theme changes
   const event = new CustomEvent('themeChanged', { detail: { theme } });
   window.dispatchEvent(event);
 }
 
-export function initializeTheme() {
+export function initializeTheme(): Theme {
+  if (typeof window === 'undefined') return 'dark';
+  
   const theme = getStoredTheme();
-  setStoredTheme(theme);
+  document.documentElement.classList.remove('light', 'dark');
+  document.documentElement.classList.add(theme);
   return theme;
 }

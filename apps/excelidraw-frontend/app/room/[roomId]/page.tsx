@@ -23,7 +23,7 @@ export default function JoinRoomPage({ params }: {
     useEffect(() => {
         const resolveParams = async () => {
             const resolvedParams = await params;
-            setRoomId(resolvedParams.roomId);
+            setRoomId(resolvedParams.roomId); // This is actually the room slug
         };
         resolveParams();
     }, [params]);
@@ -48,11 +48,11 @@ export default function JoinRoomPage({ params }: {
     }, [router]);
 
     useEffect(() => {
-        if (!roomId) return;
+        if (!roomId) return; // roomId is actually the slug here
 
         const fetchRoomInfo = async () => {
             try {
-                const response = await fetch(`${HTTP_BACKEND}/room/${roomId}/info`);
+                const response = await fetch(`${HTTP_BACKEND}/room/${roomId}`);
                 
                 if (!response.ok) {
                     setError("Room not found");
@@ -71,7 +71,7 @@ export default function JoinRoomPage({ params }: {
         };
 
         fetchRoomInfo();
-    }, [roomId]);
+    }, [roomId]); // roomId is actually the slug
 
     const joinRoom = () => {
         setJoining(true);
@@ -131,7 +131,7 @@ export default function JoinRoomPage({ params }: {
     }
 
     if (joining) {
-        return <RoomCanvas roomId={roomId} roomInfo={roomInfo} />;
+        return <RoomCanvas roomId={roomInfo.id.toString()} roomInfo={roomInfo} />;
     }
 
     return (

@@ -6,7 +6,7 @@ import { Canvas } from "./Canvas";
 import { useRouter } from "next/navigation";
 import { Palette, Wifi, WifiOff } from "lucide-react";
 
-export function RoomCanvas({roomId}: {roomId: string}) {
+export function RoomCanvas({roomId, roomInfo}: {roomId: string, roomInfo?: any}) {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [connecting, setConnecting] = useState(true);
     const [connectionError, setConnectionError] = useState(false);

@@ -202,15 +202,15 @@ function App() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative">
             <div className="absolute inset-0 bg-blue-600/10 rounded-2xl blur-2xl" />
-            <div className="relative bg-slate-800 border border-slate-600 rounded-2xl p-8 sm:p-16 shadow-xl">
+            <div className="relative bg-slate-800 border border-slate-600 rounded-2xl p-12 sm:p-20 shadow-xl">
               <div className="mx-auto max-w-2xl text-center">
                 <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
                   Ready to Transform Your Ideas?
                 </h2>
-                <p className="mx-auto mt-6 max-w-xl text-xl text-slate-300 leading-relaxed">
+                <p className="mx-auto mt-8 max-w-xl text-xl text-slate-300 leading-relaxed">
                   Join thousands of creators, designers, and teams who are already bringing their visions to life.
                 </p>
-                <div className="mt-12 flex items-center justify-center gap-6 flex-wrap">
+                <div className="mt-16 flex items-center justify-center gap-6 flex-wrap">
                   <Link
                     href="/signup"
                     className="group inline-flex items-center justify-center h-14 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"

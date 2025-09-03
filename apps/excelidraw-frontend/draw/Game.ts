@@ -2,20 +2,24 @@ import { Tool } from "@/components/Canvas";
 import { getExistingShapes } from "./http";
 
 type Shape = {
+    id: string;
     type: "rect";
     x: number;
     y: number;
     width: number;
     height: number;
 } | {
+    id: string;
     type: "circle";
     centerX: number;
     centerY: number;
     radius: number;
 } | {
+    id: string;
     type: "pencil";
     points: { x: number; y: number }[];
 } | {
+    id: string;
     type: "text";
     x: number;
     y: number;
@@ -59,16 +63,26 @@ export class Game {
         this.initHandlers();
         this.initMouseHandlers();
         this.initZoomAndPan();
+        this.initThemeHandler();
     }
     
     destroy() {
         window.removeEventListener('resize', this.resizeCanvas);
+        window.removeEventListener('themeChanged', this.handleThemeChange);
         this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
         this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
         this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
         this.canvas.removeEventListener("wheel", this.wheelHandler);
         this.removeTextInput();
     }
+
+    initThemeHandler() {
+        window.addEventListener('themeChanged', this.handleThemeChange);
+    }
+
+    handleThemeChange = () => {
+        this.clearCanvas();
+    };
 
     resizeCanvas = () => {
         this.canvas.width = window.innerWidth;
@@ -89,6 +103,29 @@ export class Game {
             this.textInput = null;
             this.isTyping = false;
         }
+    }
+
+    // Public method to reset view
+    resetView() {
+        this.scale = 1;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.clearCanvas();
+    }
+
+    // Public method to clear all shapes
+    clearAllShapes() {
+        this.existingShapes = [];
+        this.clearCanvas();
+        
+        // Send clear command to other users
+        const message = JSON.stringify({
+            type: "clear_canvas",
+            roomId: this.roomId
+        });
+        
+        console.log("Sending clear canvas command:", message);
+        this.socket.send(message);
     }
 
     async init() {
@@ -118,6 +155,14 @@ export class Game {
                 } catch (error) {
                     console.error("Failed to parse shape:", error);
                 }
+            } else if (message.type === "delete_shape") {
+                console.log("Deleting shape:", message.shapeId);
+                this.existingShapes = this.existingShapes.filter(shape => shape.id !== message.shapeId);
+                this.clearCanvas();
+            } else if (message.type === "clear_canvas") {
+                console.log("Clearing canvas from remote user");
+                this.existingShapes = [];
+                this.clearCanvas();
             }
         };
     }
@@ -211,6 +256,10 @@ export class Game {
         this.resetTransform();
     }
 
+    generateShapeId(): string {
+        return `shape_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
     mouseDownHandler = (e: MouseEvent) => {
         if (e.button === 1 || e.button === 2) { // Middle or right click for panning
             this.isDragging = true;
@@ -265,6 +314,7 @@ export class Game {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Enter' && input.value.trim()) {
                 const shape: Shape = {
+                    id: this.generateShapeId(),
                     type: "text",
                     x,
                     y: y + 20, // Adjust for baseline
@@ -283,6 +333,7 @@ export class Game {
         input.addEventListener('blur', () => {
             if (input.value.trim()) {
                 const shape: Shape = {
+                    id: this.generateShapeId(),
                     type: "text",
                     x,
                     y: y + 20,
@@ -329,6 +380,7 @@ export class Game {
         
         if (this.selectedTool === "rect" && (Math.abs(width) > 5 || Math.abs(height) > 5)) {
             shape = {
+                id: this.generateShapeId(),
                 type: "rect",
                 x: Math.min(this.startX, coords.x),
                 y: Math.min(this.startY, coords.y),
@@ -339,6 +391,7 @@ export class Game {
             const radius = Math.sqrt(width * width + height * height) / 2;
             if (radius > 5) {
                 shape = {
+                    id: this.generateShapeId(),
                     type: "circle",
                     radius: radius,
                     centerX: this.startX + width / 2,
@@ -347,6 +400,7 @@ export class Game {
             }
         } else if (this.selectedTool === "pencil" && this.pencilPoints.length > 1) {
             shape = {
+                id: this.generateShapeId(),
                 type: "pencil",
                 points: [...this.pencilPoints]
             };
