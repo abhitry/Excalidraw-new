@@ -10,10 +10,10 @@ export function IconButton({
 }) {
     return (
         <div 
-            className={`cursor-pointer rounded-xl p-3 transition-all duration-200 hover:scale-105 ${
+            className={`cursor-pointer rounded-lg p-3 transition-all duration-200 ${
                 activated 
-                    ? "bg-white/30 backdrop-blur-sm text-white shadow-lg border border-white/40" 
-                    : "bg-white/10 backdrop-blur-sm text-white/70 hover:bg-white/20 hover:text-white border border-white/20 hover:border-white/30"
+                    ? "bg-blue-600 text-white shadow-lg" 
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white border border-slate-600"
             }`}
             onClick={onClick}
             title={tooltip}

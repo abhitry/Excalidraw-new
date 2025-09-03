@@ -177,30 +177,29 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen animated-gradient flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+    <div className="min-h-screen clean-bg-primary flex items-center justify-center p-4">
       
       <div className="absolute top-6 left-6 flex items-center gap-3 z-50">
         <button
           onClick={() => router.push("/")}
-          className="p-3 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="p-3 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 transition-all duration-200 shadow-lg"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5 text-white" />
+          <ArrowLeft className="h-5 w-5 text-slate-300" />
         </button>
         <ThemeToggle />
       </div>
       
       <div className="w-full max-w-lg relative z-10">
         <div className="relative">
-          <div className="absolute inset-0 bg-white/20 rounded-3xl blur-3xl opacity-30" />
-          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8">
+          <div className="absolute inset-0 bg-blue-600/10 rounded-2xl blur-2xl opacity-30" />
+          <div className="relative bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl p-8">
             
             {/* Header */}
             <div className="text-center mb-8">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl opacity-50 animate-pulse" />
-                <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto shadow-2xl border border-white/30">
+                <div className="absolute inset-0 bg-blue-600/30 rounded-xl blur-xl opacity-50" />
+                <div className="relative w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-xl">
                   <Users className="w-8 h-8 text-white" />
                 </div>
               </div>
@@ -210,19 +209,19 @@ export default function RoomPage() {
               <p className="text-white/80 mb-4">
                 Welcome back, <span className="font-semibold text-white">{user.name}</span>!
               </p>
-              <p className="text-sm text-white/70">
+              <p className="text-sm text-slate-400">
                 {isJoining ? "Enter room details to join" : "Start a new collaborative drawing session"}
               </p>
             </div>
 
             {/* Toggle between Create and Join */}
-            <div className="flex mb-6 bg-white/10 backdrop-blur-sm rounded-xl p-1 border border-white/20">
+            <div className="flex mb-6 bg-slate-700 rounded-lg p-1 border border-slate-600">
               <button
                 onClick={() => setIsJoining(false)}
                 className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
                   !isJoining 
-                    ? 'bg-white/20 text-white shadow-lg' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-blue-600 text-white shadow-lg' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-600'
                 }`}
               >
                 Create Room
@@ -231,8 +230,8 @@ export default function RoomPage() {
                 onClick={() => setIsJoining(true)}
                 className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
                   isJoining 
-                    ? 'bg-white/20 text-white shadow-lg' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-blue-600 text-white shadow-lg' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-600'
                 }`}
               >
                 Join Room
@@ -241,8 +240,8 @@ export default function RoomPage() {
 
             {/* Error Display */}
             {errors.general && (
-              <div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl backdrop-blur-sm">
-                <p className="text-red-200 text-sm font-medium flex items-center gap-2">
+              <div className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg">
+                <p className="text-red-300 text-sm font-medium flex items-center gap-2">
                   <XCircle className="h-4 w-4" />
                   {errors.general}
                 </p>
@@ -265,15 +264,15 @@ export default function RoomPage() {
                     placeholder="e.g., Team Brainstorm, Design Review"
                     value={roomName}
                     onChange={(e) => setRoomName(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
-                      errors.roomName ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                    className={`w-full pl-12 pr-4 py-4 border rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                      errors.roomName ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'
                     }`}
                     disabled={loading}
                     maxLength={30}
                   />
                 </div>
                 {errors.roomName && (
-                  <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                  <p className="text-red-300 text-sm font-medium flex items-center gap-1">
                     <XCircle className="h-4 w-4" />
                     {errors.roomName}
                   </p>
@@ -291,20 +290,20 @@ export default function RoomPage() {
                     placeholder={isJoining ? "Enter room password" : "Set room password (optional)"}
                     value={roomPassword}
                     onChange={(e) => setRoomPassword(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
-                      errors.roomPassword ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                    className={`w-full pl-12 pr-4 py-4 border rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                      errors.roomPassword ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'
                     }`}
                     disabled={loading}
                     maxLength={20}
                   />
                 </div>
                 {errors.roomPassword && (
-                  <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                  <p className="text-red-300 text-sm font-medium flex items-center gap-1">
                     <XCircle className="h-4 w-4" />
                     {errors.roomPassword}
                   </p>
                 )}
-                <p className="text-xs text-white/60">
+                <p className="text-xs text-slate-400">
                   {isJoining 
                     ? "Enter the password provided by the room creator"
                     : "Set a password to make your room private (4-20 characters)"
@@ -316,7 +315,7 @@ export default function RoomPage() {
                 <button
                   type="submit"
                   disabled={loading || !roomName.trim()}
-                  className="group relative w-full h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-2xl hover:shadow-white/25 border border-white/30"
+                  className="group relative w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
                   <span className="relative z-10 flex items-center justify-center">
                     {loading ? (
@@ -352,7 +351,7 @@ export default function RoomPage() {
                   localStorage.removeItem("authUser");
                   router.push("/signin");
                 }}
-                className="text-sm text-white/70 hover:text-white transition-colors font-medium"
+                className="text-sm text-slate-400 hover:text-blue-400 transition-colors font-medium"
               >
                 Sign out
               </button>

@@ -59,12 +59,12 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
       }
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setErrors({ general: "Please sign in first." });
-      router.push("/signin");
-      return;
-    }
+    // const token = localStorage.getItem("token");
+    // if (!token) {
+    //   setErrors({ general: "Please sign in first." });
+    //   router.push("/signin");
+    //   return;
+    // }
 
     setLoading(true);
 
@@ -124,30 +124,29 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
   };
 
   return (
-    <div className="min-h-screen animated-gradient flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+    <div className="min-h-screen clean-bg-primary flex items-center justify-center p-4">
       
       <div className="absolute top-6 left-6 flex items-center gap-3 z-50">
         <button
           onClick={() => router.push("/")}
-          className="p-3 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="p-3 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 transition-all duration-200 shadow-lg"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5 text-white" />
+          <ArrowLeft className="h-5 w-5 text-slate-300" />
         </button>
         <ThemeToggle />
       </div>
       
       <div className="w-full max-w-md relative z-10">
         <div className="relative">
-          <div className="absolute inset-0 bg-white/20 rounded-3xl blur-3xl opacity-30" />
-          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8">
+          <div className="absolute inset-0 bg-blue-600/10 rounded-2xl blur-2xl opacity-30" />
+          <div className="relative bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl p-8">
             
             {/* Header */}
             <div className="text-center mb-8">
               <div className="relative mb-6">
-                <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl opacity-50 animate-pulse" />
-                <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto shadow-2xl border border-white/30">
+                <div className="absolute inset-0 bg-blue-600/30 rounded-xl blur-xl opacity-50" />
+                <div className="relative w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-xl">
                   <Palette className="w-8 h-8 text-white" />
                 </div>
               </div>
@@ -163,8 +162,8 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
 
             {/* Error Display */}
             {errors.general && (
-              <div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl backdrop-blur-sm">
-                <p className="text-red-200 text-sm font-medium flex items-center gap-2">
+              <div className="mb-6 p-4 bg-red-900/30 border border-red-700 rounded-lg">
+                <p className="text-red-300 text-sm font-medium flex items-center gap-2">
                   <XCircle className="h-4 w-4" />
                   {errors.general}
                 </p>
@@ -185,14 +184,14 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                       placeholder="Enter your full name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
-                        errors.name ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                      className={`w-full pl-12 pr-4 py-4 border rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                        errors.name ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'
                       }`}
                       disabled={loading}
                     />
                   </div>
                   {errors.name && (
-                    <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                    <p className="text-red-300 text-sm font-medium flex items-center gap-1">
                       <XCircle className="h-4 w-4" />
                       {errors.name}
                     </p>
@@ -212,14 +211,14 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
-                      errors.email ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                    className={`w-full pl-12 pr-4 py-4 border rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                      errors.email ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'
                     }`}
                     disabled={loading}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                  <p className="text-red-300 text-sm font-medium flex items-center gap-1">
                     <XCircle className="h-4 w-4" />
                     {errors.email}
                   </p>
@@ -238,15 +237,15 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`w-full pl-12 pr-14 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
-                      errors.password ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                    className={`w-full pl-12 pr-14 py-4 border rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                      errors.password ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'
                     }`}
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -256,7 +255,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                  <p className="text-red-300 text-sm font-medium flex items-center gap-1">
                     <XCircle className="h-4 w-4" />
                     {errors.password}
                   </p>
@@ -276,15 +275,15 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                       placeholder="Confirm your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full pl-12 pr-14 py-4 border-2 rounded-xl bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 ${
-                        errors.confirmPassword ? 'border-red-400/50' : 'border-white/30 hover:border-white/50'
+                      className={`w-full pl-12 pr-14 py-4 border rounded-lg bg-slate-700 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                        errors.confirmPassword ? 'border-red-500' : 'border-slate-600 hover:border-slate-500'
                       }`}
                       disabled={loading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-5 w-5" />
@@ -294,7 +293,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-red-200 text-sm font-medium flex items-center gap-1">
+                    <p className="text-red-300 text-sm font-medium flex items-center gap-1">
                       <XCircle className="h-4 w-4" />
                       {errors.confirmPassword}
                     </p>
@@ -304,7 +303,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
 
               {/* Password Requirements - only for signup */}
               {!isSignin && password && (
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                <div className="bg-slate-700 border border-slate-600 rounded-lg p-4">
                   <p className="text-sm font-semibold text-white mb-3">Password Requirements:</p>
                   <div className="space-y-2 text-sm">
                     <div className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-300' : 'text-white/60'}`}>
@@ -336,7 +335,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                 <button
                   type="submit"
                   disabled={loading || (!isSignin && !isPasswordValid)}
-                  className="group relative w-full h-14 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-2xl hover:shadow-white/25 border border-white/30"
+                  className="group relative w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
                   <span className="relative z-10 flex items-center justify-center">
                     {loading ? (
@@ -358,21 +357,21 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
             {/* Footer link */}
             <div className="mt-8 text-center">
               {isSignin ? (
-                <p className="text-sm text-white/70">
-                  Don't have an account?{" "}
+                <p className="text-sm text-slate-400">
+                  Dont have an account?{" "}
                   <button
                     onClick={() => router.push("/signup")}
-                    className="text-white font-semibold hover:text-white/80 transition-all duration-200"
+                    className="text-blue-400 font-semibold hover:text-blue-300 transition-all duration-200"
                   >
                     Create one now
                   </button>
                 </p>
               ) : (
-                <p className="text-sm text-white/70">
+                <p className="text-sm text-slate-400">
                   Already have an account?{" "}
                   <button
                     onClick={() => router.push("/signin")}
-                    className="text-white font-semibold hover:text-white/80 transition-all duration-200"
+                    className="text-blue-400 font-semibold hover:text-blue-300 transition-all duration-200"
                   >
                     Sign in here
                   </button>

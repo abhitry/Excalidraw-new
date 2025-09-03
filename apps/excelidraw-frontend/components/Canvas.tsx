@@ -81,8 +81,7 @@ export function Canvas({
     };
 
     return (
-        <div className="h-screen w-screen overflow-hidden relative animated-gradient">
-            <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+        <div className="h-screen w-screen overflow-hidden relative clean-bg-primary">
             <canvas 
                 ref={canvasRef} 
                 className={`absolute inset-0 ${
@@ -132,14 +131,14 @@ function Topbar({
         <>
             {/* Main Toolbar */}
             <div className="fixed top-6 left-6 z-50 flex items-center gap-4">
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-2xl">
+                <div className="flex items-center gap-2 bg-slate-800 border border-slate-600 rounded-xl p-3 shadow-xl">
                     <IconButton 
                         onClick={onBack}
                         activated={false}
                         icon={<ArrowLeft className="h-5 w-5" />}
                         tooltip="Back to rooms"
                     />
-                    <div className="w-px h-8 bg-white/30" />
+                    <div className="w-px h-8 bg-slate-600" />
                     <IconButton 
                         onClick={() => setSelectedTool("pencil")}
                         activated={selectedTool === "pencil"}
@@ -158,7 +157,7 @@ function Topbar({
                         icon={<Circle className="h-5 w-5" />}
                         tooltip="Circle Tool"
                     />
-                    <div className="w-px h-8 bg-white/30" />
+                    <div className="w-px h-8 bg-slate-600" />
                     <IconButton 
                         onClick={onReset}
                         activated={false} 
@@ -177,14 +176,14 @@ function Topbar({
 
             {/* User Info & Room Info */}
             <div className="fixed top-6 right-6 z-50 flex items-center gap-4">
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl">
+                <div className="bg-slate-800 border border-slate-600 rounded-xl p-4 shadow-xl">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                             <Users className="h-5 w-5 text-white" />
                         </div>
                         <div className="text-sm">
                             <p className="font-semibold text-white">{user?.name}</p>
-                            <p className="text-white/70">Room #{roomId}</p>
+                            <p className="text-slate-400">Room #{roomId}</p>
                         </div>
                     </div>
                 </div>
@@ -215,14 +214,14 @@ function Topbar({
 
             {/* Instructions */}
             <div className="fixed bottom-6 left-6 z-50">
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl max-w-sm">
+                <div className="bg-slate-800 border border-slate-600 rounded-xl p-4 shadow-xl max-w-sm">
                     <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0 border border-white/30">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Palette className="h-4 w-4 text-white" />
                         </div>
                         <div className="text-sm">
                             <p className="font-semibold text-white mb-1">Quick Tips</p>
-                            <p className="text-white/70 text-xs leading-relaxed">
+                            <p className="text-slate-300 text-xs leading-relaxed">
                                 • Mouse wheel to zoom • Right-click + drag to pan • Select tools above • Copy URL to share
                             </p>
                         </div>

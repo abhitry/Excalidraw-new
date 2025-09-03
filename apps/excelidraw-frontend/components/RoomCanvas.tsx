@@ -56,18 +56,17 @@ export function RoomCanvas({roomId}: {roomId: string}) {
    
     if (connecting) {
         return (
-            <div className="min-h-screen animated-gradient flex items-center justify-center">
-                <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+            <div className="min-h-screen clean-bg-primary flex items-center justify-center">
                 <div className="text-center relative z-10">
                     <div className="relative mb-6">
-                        <div className="absolute inset-0 bg-white/30 rounded-2xl blur-xl opacity-50 animate-pulse" />
-                        <div className="relative w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto shadow-2xl border border-white/30">
+                        <div className="absolute inset-0 bg-blue-600/30 rounded-xl blur-xl opacity-50 animate-pulse" />
+                        <div className="relative w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-xl">
                             <Palette className="w-8 h-8 text-white animate-spin" />
                         </div>
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">Connecting to Canvas</h3>
-                    <p className="text-white/80">Setting up your collaborative workspace...</p>
-                    <div className="mt-4 flex items-center justify-center gap-2 text-sm text-white/70">
+                    <p className="text-slate-300">Setting up your collaborative workspace...</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-400">
                         <Wifi className="h-4 w-4 animate-pulse" />
                         Establishing real-time connection
                     </div>
@@ -78,26 +77,25 @@ export function RoomCanvas({roomId}: {roomId: string}) {
 
     if (connectionError || !socket) {
         return (
-            <div className="min-h-screen animated-gradient flex items-center justify-center">
-                <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+            <div className="min-h-screen clean-bg-primary flex items-center justify-center">
                 <div className="text-center max-w-md mx-auto p-8 relative z-10">
-                    <div className="w-16 h-16 bg-red-500/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl border border-red-400/30">
-                        <WifiOff className="w-8 h-8 text-red-300" />
+                    <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                        <WifiOff className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">Connection Failed</h3>
-                    <p className="text-white/80 mb-6">
+                    <p className="text-slate-300 mb-6">
                         Unable to connect to the drawing server. Please check your connection and try again.
                     </p>
                     <div className="flex gap-3 justify-center">
                         <button 
                             onClick={() => window.location.reload()} 
-                            className="px-6 py-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg border border-white/30"
+                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg"
                         >
                             Try Again
                         </button>
                         <button 
                             onClick={() => router.push("/room")} 
-                            className="px-6 py-3 border border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 font-semibold rounded-xl transition-all duration-200"
+                            className="px-6 py-3 border border-slate-600 bg-slate-800 text-white hover:bg-slate-700 font-semibold rounded-lg transition-all duration-200"
                         >
                             Back to Rooms
                         </button>
