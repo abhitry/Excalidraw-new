@@ -246,7 +246,7 @@ function App() {
               </p>
             </div>
             <div className="flex space-x-6">
-              <a href="https://github.com" className="text-slate-400 hover:text-white transition-colors">
+              <a href="https://github.com/abhitry" className="text-slate-400 hover:text-white transition-colors">
                 <Github className="h-5 w-5" />
               </a>
               <a href="#" className="text-slate-400 hover:text-white transition-colors">
