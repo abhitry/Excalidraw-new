@@ -1,3 +1,73 @@
+# version: '3.8'
+
+# services:
+#   postgres:
+#     image: postgres:15-alpine
+#     container_name: postgres
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: drawing_app
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   http-backend:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile.http-backend
+#     container_name: http-backend
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#     environment:
+#       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/drawing_app"
+#       JWT_SECRET: "secret"
+#       PORT: 3001
+#     ports:
+#       - "3001:3001"
+#     restart: unless-stopped
+
+#   ws-backend:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile.ws-backend
+#     container_name: ws-backend
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#     environment:
+#       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/drawing_app"
+#       JWT_SECRET: "secret"
+#       WS_PORT: 8080
+#     ports:
+#       - "8080:8080"
+#     restart: unless-stopped
+
+#   frontend:
+#     build:
+#       context: .
+#       dockerfile: docker/Dockerfile.frontend
+#     container_name: frontend
+#     depends_on:
+#       - http-backend
+#       - ws-backend
+#     environment:
+#       NEXT_PUBLIC_HTTP_BACKEND: "http://localhost:3001"
+#       NEXT_PUBLIC_WS_URL: "ws://localhost:8080"
+#     ports:
+#       - "3000:3000"
+#     restart: unless-stopped
+
+# volumes:
+#   postgres_data:
+
 version: '3.8'
 
 services:
@@ -17,6 +87,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   http-backend:
     build:
@@ -33,6 +105,8 @@ services:
     ports:
       - "3001:3001"
     restart: unless-stopped
+    networks:
+      - app-network
 
   ws-backend:
     build:
@@ -40,8 +114,7 @@ services:
       dockerfile: docker/Dockerfile.ws-backend
     container_name: ws-backend
     depends_on:
-      postgres:
-        condition: service_healthy
+      - http-backend
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/drawing_app"
       JWT_SECRET: "secret"
@@ -49,6 +122,8 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -64,6 +139,12 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
