@@ -1,0 +1,37 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace configuration
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
+
+# Copy package.json files for all packages
+COPY packages/ui/package.json ./packages/ui/package.json
+COPY packages/common/package.json ./packages/common/package.json
+COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
+COPY packages/eslint-config/package.json ./packages/eslint-config/package.json
+COPY apps/excelidraw-frontend/package.json ./apps/excelidraw-frontend/package.json
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/ ./packages/
+COPY apps/excelidraw-frontend/ ./apps/excelidraw-frontend/
+
+# Build packages first
+RUN pnpm --filter @repo/ui run build
+RUN pnpm --filter @repo/common run build
+RUN pnpm --filter @repo/typescript-config run build
+
+# Build frontend
+RUN pnpm --filter excelidraw-frontend run build
+
+# Expose port
+EXPOSE 3000
+
+# Start the application
+CMD ["pnpm", "--filter", "excelidraw-frontend", "start"]

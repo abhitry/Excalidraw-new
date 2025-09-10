@@ -1,0 +1,43 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace configuration
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
+
+# Copy package.json files for dependencies
+COPY packages/db/package.json ./packages/db/package.json
+COPY packages/common/package.json ./packages/common/package.json
+COPY packages/backend-common/package.json ./packages/backend-common/package.json
+COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
+COPY apps/http-backend/package.json ./apps/http-backend/package.json
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/ ./packages/
+COPY apps/http-backend/ ./apps/http-backend/
+
+# Build packages
+RUN pnpm --filter @repo/db run build
+RUN pnpm --filter @repo/common run build
+RUN pnpm --filter @repo/backend-common run build
+
+# Build HTTP backend
+RUN pnpm --filter http-backend run build
+
+# Generate Prisma client and run migrations
+WORKDIR /app/packages/db
+RUN pnpm run generate
+
+WORKDIR /app
+
+# Expose port
+EXPOSE 3001
+
+# Start with migrations then the application
+CMD ["sh", "-c", "cd packages/db && pnpm run generate && pnpm run migrate:auto && cd ../.. && pnpm --filter http-backend start"]
