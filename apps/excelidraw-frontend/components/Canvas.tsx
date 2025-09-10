@@ -5,7 +5,7 @@ import { Game } from "@/draw/Game";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 
-export type Tool = "circle" | "rect" | "pencil" | "eraser";
+export type Tool = "circle" | "rect" | "pencil" | "eraser" | "text";
 
 export function Canvas({
     roomId,

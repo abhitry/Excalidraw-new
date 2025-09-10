@@ -7,10 +7,10 @@ import { ArrowLeft, Users, AlertCircle, Calendar, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { RoomCanvas } from "@/components/RoomCanvas";
 
-export default function JoinRoomPage({ params }: {
-    params: {
-        roomId: string
-    }
+export default function JoinRoomPage({ 
+    params 
+}: {
+    params: Promise<{ roomId: string }>
 }) {
     const [roomId, setRoomId] = useState<string>("");
     const [roomInfo, setRoomInfo] = useState<any>(null);

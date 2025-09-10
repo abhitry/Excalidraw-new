@@ -20,14 +20,13 @@ async function getRoomInfo(roomSlug: string) {
   }
 }
 
-// 👇 define our own prop type instead of relying on Next.js PageProps
-type CanvasPageProps = {
-  params: {
-    roomId: string;
-  };
-};
-export default async function CanvasPage({ params }: { params: { roomId: string } }) {
-  const roomSlug = params.roomId;
+export default async function CanvasPage({ 
+  params 
+}: { 
+  params: Promise<{ roomId: string }> 
+}) {
+  const { roomId } = await params;
+  const roomSlug = roomId;
 
   const roomInfo = await getRoomInfo(roomSlug);
   if (!roomInfo) {
