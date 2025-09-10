@@ -84,7 +84,7 @@ export default function RoomPage() {
       });
 
       const roomSlug = roomResponse.data.roomSlug;
-      router.push(`/canvas/${roomSlug}`);
+      router.push(`/room/${roomSlug}`);
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error)) {
@@ -145,7 +145,7 @@ export default function RoomPage() {
       });
 
       const roomSlug = joinResponse.data.roomSlug;
-      router.push(`/canvas/${roomSlug}`);
+      router.push(`/room/${roomSlug}`);
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error)) {

@@ -18,6 +18,7 @@ export function IconButton({
             onClick={onClick}
             title={tooltip}
         >
+            @ts-ignore
             {icon}
         </div>
     );
