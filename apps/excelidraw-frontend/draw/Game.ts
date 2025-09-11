@@ -63,6 +63,7 @@ export class Game {
         this.initHandlers();
         this.initMouseHandlers();
         this.initZoomAndPan();
+        this.initTouchHandlers();
         this.initThemeHandler();
     }
     
@@ -89,6 +90,110 @@ export class Game {
         this.canvas.height = window.innerHeight;
         this.clearCanvas();
     };
+
+    // Add touch event support for mobile
+    initTouchHandlers() {
+        let lastTouchDistance = 0;
+        let lastTouchCenter = { x: 0, y: 0 };
+        
+        this.canvas.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            
+            if (e.touches.length === 1) {
+                // Single touch - treat as mouse down
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    button: 0
+                });
+                this.mouseDownHandler(mouseEvent);
+            } else if (e.touches.length === 2) {
+                // Two finger touch - prepare for zoom/pan
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                
+                lastTouchDistance = Math.sqrt(
+                    Math.pow(touch2.clientX - touch1.clientX, 2) +
+                    Math.pow(touch2.clientY - touch1.clientY, 2)
+                );
+                
+                lastTouchCenter = {
+                    x: (touch1.clientX + touch2.clientX) / 2,
+                    y: (touch1.clientY + touch2.clientY) / 2
+                };
+            }
+        });
+        
+        this.canvas.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+            
+            if (e.touches.length === 1) {
+                // Single touch - treat as mouse move
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    button: 0
+                });
+                this.mouseMoveHandler(mouseEvent);
+            } else if (e.touches.length === 2) {
+                // Two finger touch - zoom and pan
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                
+                const currentDistance = Math.sqrt(
+                    Math.pow(touch2.clientX - touch1.clientX, 2) +
+                    Math.pow(touch2.clientY - touch1.clientY, 2)
+                );
+                
+                const currentCenter = {
+                    x: (touch1.clientX + touch2.clientX) / 2,
+                    y: (touch1.clientY + touch2.clientY) / 2
+                };
+                
+                // Zoom
+                if (lastTouchDistance > 0) {
+                    const zoomFactor = currentDistance / lastTouchDistance;
+                    const newScale = Math.max(0.1, Math.min(5, this.scale * zoomFactor));
+                    
+                    if (newScale !== this.scale) {
+                        this.offsetX = currentCenter.x - (currentCenter.x - this.offsetX) * (newScale / this.scale);
+                        this.offsetY = currentCenter.y - (currentCenter.y - this.offsetY) * (newScale / this.scale);
+                        this.scale = newScale;
+                    }
+                }
+                
+                // Pan
+                const deltaX = currentCenter.x - lastTouchCenter.x;
+                const deltaY = currentCenter.y - lastTouchCenter.y;
+                
+                this.offsetX += deltaX;
+                this.offsetY += deltaY;
+                
+                lastTouchDistance = currentDistance;
+                lastTouchCenter = currentCenter;
+                
+                this.clearCanvas();
+            }
+        });
+        
+        this.canvas.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            
+            if (e.touches.length === 0) {
+                // All touches ended - treat as mouse up
+                const mouseEvent = new MouseEvent("mouseup", {
+                    clientX: e.changedTouches[0]?.clientX || 0,
+                    clientY: e.changedTouches[0]?.clientY || 0,
+                    button: 0
+                });
+                this.mouseUpHandler(mouseEvent);
+            }
+            
+            lastTouchDistance = 0;
+        });
+    }
 
     setTool(tool: Tool) {
         this.selectedTool = tool;
