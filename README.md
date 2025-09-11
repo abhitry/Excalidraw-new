@@ -1,6 +1,32 @@
 # Drawing App - Excalidraw Clone
 
-A collaborative drawing application similar to Excalidraw where users can draw shapes like circles, rectangles, and freehand pencil drawings in real-time.
+A real-time collaborative drawing application similar to Excalidraw where users can draw shapes like circles, rectangles, and freehand pencil drawings with live synchronization across multiple users.
+
+## 🏗️ Architecture Overview
+
+**Frontend (Next.js 15 + React 19)**
+- Canvas-based drawing interface with zoom/pan functionality
+- Real-time WebSocket connection for live collaboration
+- JWT-based authentication with persistent sessions
+- Responsive design supporting both desktop and mobile devices
+
+**Backend Services**
+- **HTTP API Server (Express.js)**: Handles authentication, room management, and data persistence
+- **WebSocket Server**: Manages real-time events (drawing updates, user presence, shape operations)
+- **PostgreSQL Database**: Stores user data, room information, and drawing history via Prisma ORM
+
+**Key Workflows**
+1. **User Authentication**: JWT-based signup/signin with password validation
+2. **Room Management**: Create/join rooms with optional password protection
+3. **Real-time Drawing**: Canvas events → WebSocket → Database → Broadcast to all room users
+4. **Data Persistence**: All drawing operations stored in PostgreSQL before real-time sync
+5. **Collaborative Features**: Multi-user drawing, shape deletion, canvas clearing, and live cursors
+
+**Deployment Architecture**
+- **Containerization**: Docker containers for all services with multi-stage builds
+- **Kubernetes Orchestration**: Deployed on GKE with HPA, persistent volumes, and service mesh
+- **HTTPS & Load Balancing**: nginx-ingress with Let's Encrypt SSL certificates
+- **Database**: PostgreSQL with persistent storage and automated migrations
 
 ## Features
 
