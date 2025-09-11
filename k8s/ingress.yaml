@@ -5,7 +5,7 @@ metadata:
   name: excelidraw-frontend-ingress
   namespace: excelidraw
   annotations:
-    # Use the existing cluster issuer from your betteruptime project
+    # Enable cert-manager to automatically provision certificates
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     # Force HTTPS redirect
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -31,14 +31,14 @@ spec:
 
 ---
 
-# HTTP API ingress with HTTPS
+# API ingress with HTTPS
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: excelidraw-api-ingress
   namespace: excelidraw
   annotations:
-    # Use the existing cluster issuer from your betteruptime project
+    # Enable cert-manager to automatically provision certificates
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     # Force HTTPS redirect
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -55,7 +55,7 @@ spec:
   tls:
   - hosts:
     - excelidraw.abhishek97.icu
-    secretName: excelidraw-tls-cert  # Same certificate for both frontend and API
+    secretName: excelidraw-tls-cert  # Same certificate
   rules:
   - host: excelidraw.abhishek97.icu
     http:
@@ -77,7 +77,7 @@ metadata:
   name: excelidraw-ws-ingress
   namespace: excelidraw
   annotations:
-    # Use the existing cluster issuer from your betteruptime project
+    # Enable cert-manager to automatically provision certificates
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     # Force HTTPS redirect
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -93,7 +93,7 @@ spec:
   tls:
   - hosts:
     - excelidraw.abhishek97.icu
-    secretName: excelidraw-tls-cert  # Same certificate
+    secretName: excelidraw-tls-cert  # Same certificate for all services
   rules:
   - host: excelidraw.abhishek97.icu
     http:
