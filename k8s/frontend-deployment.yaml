@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: excelidraw-frontend
+  namespace: excelidraw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: excelidraw-frontend
+  template:
+    metadata:
+      labels:
+        app: excelidraw-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: node:20-alpine
+          workingDir: /app
+          command: 
+            - sh
+            - -c
+            - |
+              # Install pnpm
+              npm install -g pnpm
+              
+              # Clone the repo (you'll need to build and push your own image)
+              # For now, this is a placeholder - you'll need to create Docker images
+              echo "Starting Frontend..."
+              sleep infinity
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_HTTP_BACKEND
+              valueFrom:
+                configMapKeyRef:
+                  name: excelidraw-config
+                  key: NEXT_PUBLIC_HTTP_BACKEND
+            - name: NEXT_PUBLIC_WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: excelidraw-config
+                  key: NEXT_PUBLIC_WS_URL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: excelidraw-frontend
+  namespace: excelidraw
+spec:
+  selector:
+    app: excelidraw-frontend
+  ports:
+    - port: 80
+      targetPort: 3000
+  type: ClusterIP

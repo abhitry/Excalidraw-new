@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: excelidraw-ws-backend
+  namespace: excelidraw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: excelidraw-ws-backend
+  template:
+    metadata:
+      labels:
+        app: excelidraw-ws-backend
+    spec:
+      containers:
+        - name: ws-backend
+          image: node:20-alpine
+          workingDir: /app
+          command: 
+            - sh
+            - -c
+            - |
+              # Install pnpm
+              npm install -g pnpm
+              
+              # Clone the repo (you'll need to build and push your own image)
+              # For now, this is a placeholder - you'll need to create Docker images
+              echo "Starting WebSocket backend..."
+              sleep infinity
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: excelidraw-secret
+                  key: DATABASE_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: excelidraw-secret
+                  key: JWT_SECRET
+            - name: WS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: excelidraw-config
+                  key: WS_PORT
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: excelidraw-ws-backend
+  namespace: excelidraw
+spec:
+  selector:
+    app: excelidraw-ws-backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
