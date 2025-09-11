@@ -15,6 +15,14 @@ app.use(cors());
 //   allowedHeaders: ["Content-Type", "Authorization"]
 // }));
 
+app.get("/health", (req, res) => {
+    res.status(200).json({ 
+        status: "healthy", 
+        timestamp: new Date().toISOString(),
+        service: "http-backend"
+    });
+});
+
 app.post("/signup", async (req, res) => {
     console.log("inside the signup wendpioint")
     const parsedData = CreateUserSchema.safeParse(req.body);

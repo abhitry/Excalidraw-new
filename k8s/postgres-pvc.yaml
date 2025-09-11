@@ -9,4 +9,8 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: standard-rwo
+  # Option 1: WaitForFirstConsumer (standard-rwo)
+  # storageClassName: standard-rwo
+  
+  # Option 2: Immediate provisioning (standard)
+  storageClassName: standard
